@@ -77,7 +77,7 @@ func (l *LogProcess) LogAnalysis() {
 		lf.UpstreamTime, _ = strconv.ParseFloat(resultList[9], 64)
 		lf.ResponseTime, _ = strconv.ParseFloat(resultList[10], 64)
 		lf.ResponseStatus, _ = strconv.Atoi(resultList[11])
-		lf.RequestBodySize, _ = strconv.Atoi(resultList[12])
+		lf.ResponseBodySize, _ = strconv.Atoi(resultList[12])
 
 		// json
 		logBin, _ := json.Marshal(lf)
@@ -99,5 +99,33 @@ func (l *LogProcess) WriteToInfluxDB() {
 		fmt.Printf("successfully, %v\n", str)
 
 		// todo: unmarshal json and write to influxdb
+		org := "my-org"
+		bucket := "log-process"
+		var (
+			tags   map[string]string
+			fields map[string]interface{}
+		)
+		// tag字段，带index
+		tags = make(map[string]string)
+		tags["ip"] = str.Ip
+		tags["method"] = str.Method
+		tags["upstreamAddr"] = str.UpstreamAddr
+		tags["upstreamTime"] = strconv.FormatFloat(str.UpstreamTime, 'f', 2, 64)
+		tags["responseTime"] = strconv.FormatFloat(str.ResponseTime, 'f', 2, 64)
+		tags["responseStatus"] = string(rune(str.ResponseStatus))
+
+		// field字段
+		fields = make(map[string]interface{})
+		fields["date"] = str.Date
+		fields["requestPath"] = str.RequestPath
+		fields["requestSize"] = str.RequestSize
+		fields["responseBodySize"] = str.ResponseBodySize
+
+		// 写入influxdb
+		err = utils.Write(tags, fields, org, bucket)
+		if err != nil {
+			// todo: record an error
+			fmt.Println("write err: ", err)
+		}
 	}
 }
