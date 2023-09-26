@@ -112,7 +112,7 @@ func (l *LogProcess) WriteToInfluxDB() {
 		tags["upstreamAddr"] = str.UpstreamAddr
 		tags["upstreamTime"] = strconv.FormatFloat(str.UpstreamTime, 'f', 2, 64)
 		tags["responseTime"] = strconv.FormatFloat(str.ResponseTime, 'f', 2, 64)
-		tags["responseStatus"] = string(rune(str.ResponseStatus))
+		tags["responseStatus"] = string(str.ResponseStatus)
 
 		// field字段
 		fields = make(map[string]interface{})
